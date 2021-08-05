@@ -14,3 +14,7 @@ fit = stan(file = 'ecoreg.stan', data = list(y = y, adata = adata, covlist = cov
 
 print(fit)
 plot(fit)
+
+## Testning function
+expose_stan_functions(stanmodel = 'ecoreg.stan')
+loglikeco_log(y=y, adata=adata, pars = rep(0, 30), covlist = covlist, whicha = whicha, numeffects = c(15,13,2))

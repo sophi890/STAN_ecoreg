@@ -40,7 +40,7 @@ functions{
     
     // calculate loglikelihood
     for (i in 1:num_elements(y)){
-      loglik[i] = log(pow(p[i],y[i])*(pow(1-p[i],N[i]-y[i])));//binomial_lpmf(y[i] | N[i], p[i]); - not working b/c require ints not reals.
+      loglik[i] = y[i]*log(p[i]) + (N[i]-y[i])*log(1-p[i]);//binomial_lpmf(y[i] | N[i], p[i]); - not working b/c require ints not reals.
     }
     return sum(loglik);
   }
@@ -55,12 +55,12 @@ data{ // how to make generalizable?
 }
 
 parameters{
-  vector<lower=-1, upper = 1>[30] pars; // use bounds?
+  vector<lower=0.1, upper = 0.5>[30] pars; // use bounds?
 }
 
 model{
-  pars[1] ~ logistic(0,1); // prior for intercept
-  pars[2:] ~ normal(0, 0.68); // priors for remaining 
+  pars[1] ~ normal(-3,sqrt(5)); // prior for intercept
+  pars[2:] ~ normal(0, sqrt(0.68)); // priors for remaining 
   y ~ loglikeco(adata, pars, covlist, whicha, numeffects); // log likelihood
 }
 
