@@ -55,11 +55,11 @@ data{ // how to make generalizable?
 }
 
 parameters{
-  vector<lower=0.1, upper = 0.5>[30] pars; // use bounds?
+  vector[30] pars; // use bounds?
 }
 
 model{
-  pars[1] ~ normal(-3,sqrt(5)); // prior for intercept
+  pars[1] ~ normal(-6.5,sqrt(5)); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US
   pars[2:] ~ normal(0, sqrt(0.68)); // priors for remaining 
   y ~ loglikeco(adata, pars, covlist, whicha, numeffects); // log likelihood
 }
