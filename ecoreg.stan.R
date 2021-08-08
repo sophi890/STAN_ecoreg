@@ -21,6 +21,11 @@ plot(fit1, pars = c('pars[21]','pars[22]', 'pars[23]', 'pars[24]', 'pars[25]', '
 plot(fit1, plotfun = 'trace', inc_warmup = TRUE)
 traceplot(fit1)
 
-## Testing function - here loglik excludes binomial coefficients
+## Testing function - here loglik excludes binomial coefficients - yes this matches Jackson's!
 expose_stan_functions(stanmodel = 'ecoreg.stan')
-loglikeco_log(y=y, adata=adata, pars = rep(0, 30), covlist = covlist, whicha = whicha, numeffects = c(15,13,2))
+loglikeco_log(y=y, adata=adata, pars = rep(0, 30), covlist = covlist, whicha = whicha, numeffects = c(15,13,2)) #-218254980 
+loglikeco_log(y=y, adata=adata, pars = rep(-0.001, 30), covlist = covlist, whicha = whicha, numeffects = c(15,13,2)) #-203338046
+
+# Jackson results: (very close - difference of C++ and R numerics?)
+# -217301361
+#-202384427
