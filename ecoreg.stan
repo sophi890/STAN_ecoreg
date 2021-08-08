@@ -49,18 +49,18 @@ functions{
 data{ // how to make generalizable?
   vector[3082] y; // deaths
   matrix[3082,405] adata; // population + grouplevel covariates + normal covariates + percent ppl in each strata
-  matrix[2,2] covlist[3082]; // covariance list for normal covariates
+  int numeffects[3];   // # group level, # categorical covariates, # normal covariates in that order
+  matrix[numeffects[3],numeffects[3]] covlist[3082]; // covariance list for normal covariates
   matrix[384,13] whicha; // matrix of 1s and zeros based off of Jackson's whicha containing combinations (which categorical covariates a strata has)
-  int numeffects[3]; // # group level, # categorical covariates, # normal covariates in that order
-}
+} 
 
 parameters{
-  vector[30] pars; // use bounds?
+  vector<lower=-3,upper=3>[30] pars; // use bounds?
 }
 
 model{
-  pars[1] ~ normal(-6.5,sqrt(5)); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US
-  pars[2:] ~ normal(0, sqrt(0.68)); // priors for remaining 
+  //pars[1] ~ normal(-6.5,sqrt(5)); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US
+  pars ~ normal(0, sqrt(0.68)); // priors for remaining 
   y ~ loglikeco(adata, pars, covlist, whicha, numeffects); // log likelihood
 }
 
