@@ -1,9 +1,9 @@
 library('rstan')
 
 # Load data
-load('adata.Rda')
-load('whicha.Rda')
-load('covlist.Rdata')
+load('data/adata.Rda')
+load('data/whicha.Rda')
+load('data/covlist.Rdata')
 
 # Deaths
 y = adata[,1]
