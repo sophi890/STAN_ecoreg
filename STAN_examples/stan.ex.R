@@ -3,7 +3,7 @@ schools_dat <- list(J = 8,
                     y = c(28,  8, -3,  7, -1,  1, 18, 12),
                     sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
 
-fit <- stan(file = 'schools.stan', data = schools_dat)
+fit <- stan(file = 'STAN_examples/schools.stan', data = schools_dat)
 
 print(fit)
 plot(fit)
@@ -25,7 +25,7 @@ d <- as.data.frame(fit)
 lambda = 1
 dat = rexp(500, lambda)
 len = length(dat)
-fit = stan(file = 'exponential.ex.stan', data = list(Y=dat, LENGTH=len))
+fit = stan(file = 'STAN_examples/exponential.ex.stan', data = list(Y=dat, LENGTH=len))
 
 print(fit)
 mcmc_chain = as.matrix(fit)
