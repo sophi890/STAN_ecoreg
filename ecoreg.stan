@@ -1,14 +1,14 @@
 functions{ 
   real loglikeco_log(vector y, int numcounties, int[] numeffects, int[] numcats, matrix[] covlist, matrix adata, matrix whicha, vector pars){ //real
     vector[numeffects[1]] alphac = pars[1:(numeffects[1])]; // area-level covariate effects
-    vector[sum(numcats)-numeffects[2]] alpha;
-    vector[numeffects[3]] beta;
-    vector[numcounties] N = adata[,2];
-    vector[numcounties] q;
-    real c = 16*sqrt(3) / (15 * pi());            
-    vector[numcounties] denom;
+    vector[sum(numcats)-numeffects[2]] alpha; // binary/categorical covariate effects
+    vector[numeffects[3]] beta; // normal covariate effects
+    vector[numcounties] N = adata[,2]; // population each county
+    vector[numcounties] q; 
+    real c = 16*sqrt(3) / (15 * pi());  
+    vector[numcounties] denom = rep_vector(1.0, numcounties); 
+    vector[numcounties] normvec = rep_vector(0.0, numcounties);
     vector[prod(numcats)] cateffs = rep_vector(0.0, prod(numcats));
-    //matrix[numcounties,prod(numcats)] alleffs;
     matrix[numcounties,prod(numcats)] plogis_alleffs;
     vector[prod(numcats)] ones = rep_vector(1.0, prod(numcats));
     vector[numcounties] p;
@@ -21,26 +21,20 @@ functions{
       alpha = pars[(numeffects[1]+1):(numeffects[1]+sum(numcats)-numeffects[2])]; // individual-level binary covariate effects
       cateffs = whicha*alpha; //cateffs by strata
     }
-    else
-      cateffs = rep_vector(0.0, prod(numcats));
     
     // add "normal" covariate effects
    if (numeffects[3]>0){
       beta = pars[(numeffects[1]+sum(numcats)-numeffects[2]+1):(numeffects[1]+sum(numcats)-numeffects[2]+numeffects[3])]; // individual-level normal covariate effects
-      for (i in 1:num_elements(y)){
+      for (i in 1:numcounties){
         denom[i] = sqrt(1+c*c*beta'*covlist[i]*beta);
       }
-      q = q + (adata[,(numeffects[1]+5+prod(numcats)):(numeffects[1]+4+prod(numcats)+numeffects[3])] * beta) ./ denom; //adata[,404:405] numerator (3082 x 2) x (2 x 1). element wise division - both length 3082
+    normvec = adata[,(numeffects[1]+5+prod(numcats)):(numeffects[1]+4+prod(numcats)+numeffects[3])] * beta; 
     }
-    
-    
-    // add categorical effects
-    for (i in 1:num_elements(y)){
+    for (i in 1:numcounties){
       for (j in 1:prod(numcats)){
-        plogis_alleffs[i,j] = logistic_cdf(q[i] + cateffs[j],0,1);
+        plogis_alleffs[i,j] = logistic_cdf((q[i] + cateffs[j] + normvec[i])/denom[i],0,1);
       }
     }
-   
     
     // end up with vector of probabilities for binomial, one for each FIPS 
     p = (adata[,(numeffects[1]+5):(numeffects[1]+4+prod(numcats))].* plogis_alleffs) * ones; //adata[,20:403]. (3082 x 384) x (384 x 1)
@@ -68,7 +62,7 @@ parameters{
 }
 
 model{
-  pars[1] ~ normal(-6.5,5); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US Feb
+  pars[1] ~ normal(-7,5); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US Feb
   pars[2:] ~ normal(0, sqrt(0.68)); // priors for remaining //corresponds to 95 percent odds ratio between 1/5 and 5
   y ~ loglikeco(numcounties, numeffects, numcats, covlist, adata, whicha, pars); // log likelihood
 }
