@@ -2,6 +2,8 @@ library('rstan')
 options(mc.cores = 24)
 rstan_options(auto_write = TRUE)
 
+#save(adata, covlist, whicha, file = "ecoreg.RData")
+#load("ecoreg.RData")
 load("./data/ecoreg.RData")
 
 y = adata[,1]
@@ -16,7 +18,4 @@ fit2 = stan(file = './ecoreg.stan',
                         whicha = whicha),
             iter = 1000)
 
-save(fit2,file=paste0("/n/home01/xwu1993/STAN_ecoreg/fit2.Rdata"))
-
-#save(adata, covlist, whicha, file = "ecoreg.RData")
-#load("ecoreg.RData")
+save(fit2,file=paste0("./fit2.Rdata"))
