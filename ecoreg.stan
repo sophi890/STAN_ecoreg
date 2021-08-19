@@ -58,7 +58,7 @@ data{ // how to make generalizable?
 } 
 
 parameters{
-  vector[30] pars; // use bounds? eg <lower=-3,upper=3>
+  vector[numeffects[1]+sum(numcats)-numeffects[2]+numeffects[3]] pars; // use bounds? eg <lower=-3,upper=3>
 }
 
 model{
