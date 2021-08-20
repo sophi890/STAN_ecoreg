@@ -2,13 +2,13 @@ library('rstan')
 options(mc.cores = 24)
 rstan_options(auto_write = TRUE)
 
-#save(adata, covlist, whicha, file = "ecoreg.RData")
+#save(adata, covlist, whicha, file = "../data/ecoreg.RData")
 #load("ecoreg.RData")
-load("./data/ecoreg.RData")
+load("../data/ecoreg.RData")
 
 y = adata[,1]
 
-fit2 = stan(file = './ecoreg.stan',
+fit2 = stan(file = '../ecoreg.stan',
             data = list(y = y, 
                         numcounties = 3082, 
                         numeffects = c(63, 6, 2), 
@@ -18,4 +18,4 @@ fit2 = stan(file = './ecoreg.stan',
                         whicha = whicha),
             iter = 2000)
 
-save(fit2,file=paste0("./fit2.Rdata"))
+save(fit2,file=paste0("../fit2.Rdata"))
