@@ -11,11 +11,11 @@ y = adata[,1]
 fit2 = stan(file = './ecoreg.stan',
             data = list(y = y, 
                         numcounties = 3082, 
-                        numeffects = c(15, 6, 2), 
+                        numeffects = c(63, 6, 2), 
                         numcats = c(2,2,2,8,2,3), 
                         covlist = covlist, 
                         adata = adata, 
                         whicha = whicha),
-            iter = 1000)
+            iter = 2000)
 
 save(fit2,file=paste0("./fit2.Rdata"))

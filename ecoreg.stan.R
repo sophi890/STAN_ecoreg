@@ -38,9 +38,9 @@ y = adata[,1]
 
 ## Testing loglik function - yes this matches Jackson's! Although here I drop the binomial coeffs for simplicity.
 expose_stan_functions(stanmodel = 'ecoreg.stan')
-loglikeco_log(y = y, numcounties = 3082, numeffects = c(63, 6, 2), numcats = c(2,2,2,8,2,3), covlist=covlist, adata=adata, whicha=whicha, pars = rep(0, 77)) #-218254980  
-loglikeco_log(y=y, numcounties = 3082, numeffects = c(63, 6, 2), numcats = c(2,2,2,8,2,3), covlist = covlist, adata=adata, whicha=whicha, pars = rep(-0.1, 77)) #-1233863
-loglikeco_log(y=y, numcounties = 3082, numeffects = c(63, 6, 2), numcats = c(2,2,2,8,2,3), covlist = covlist, adata=adata, whicha=whicha, pars = rep(0.1, 77)) #-3047040336
+loglikeco_log(y = y, numcounties = 3082, numeffects = c(63, 6, 2), numcats = c(2,2,2,8,2,3), covlist=covlist, adata=adata, whicha=whicha, pars = rep(0, 78)) #-218254980  
+loglikeco_log(y=y, numcounties = 3082, numeffects = c(63, 6, 2), numcats = c(2,2,2,8,2,3), covlist = covlist, adata=adata, whicha=whicha, pars = rep(-0.1, 78)) #-1242674
+loglikeco_log(y=y, numcounties = 3082, numeffects = c(63, 6, 2), numcats = c(2,2,2,8,2,3), covlist = covlist, adata=adata, whicha=whicha, pars = rep(0.1, 78)) #-3077917034
 
 # Run MCMC
 fit2 = stan(file = 'ecoreg.stan', data = list(y = y, numcounties = 3082, numeffects = c(63, 6, 2), numcats = c(2,2,2,8,2,3), covlist=covlist, adata=adata, whicha=whicha))
