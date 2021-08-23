@@ -74,3 +74,14 @@ loglikeco_log(y = y, numcounties = 3082, numeffects = c(62, 6, 3), numcats = c(2
 fit3 = stan(file = 'ecoreg.stan', data = list(y = y, numcounties = 3082, numeffects = c(62, 6, 3), numcats = c(2,2,2,8,2,3), covlist = covlist.pm25, adata = adata, whicha = whicha), iter = 2000)
 
 print(fit3)
+
+# Try Model 2 with random state effects
+load('data/states.Rda')
+load('data/adata_random.Rda')
+load('data/whicha.Rda')
+load('data/covlist.Rdata')
+
+# Deaths
+y = adata[,1]
+
+fit.random = stan(file = 'ecoreg_random.stan', data = list(y = y, numcounties = 3082, numeffects = c(15, 6, 2), numcats = c(2,2,2,8,2,3), covlist=covlist, adata=adata, whicha=whicha, states=states))
