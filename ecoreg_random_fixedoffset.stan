@@ -56,7 +56,7 @@ parameters{
 
 model{
   rand ~ normal(0, sigma);
-  pars[1] ~ normal(-10,5); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US Feb
+  pars[1] ~ normal(0,5); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US Feb
   pars[2:] ~ normal(0, sqrt(0.68)); // priors for remaining //corresponds to 95 percent odds ratio between 1/5 and 5
   y ~ loglikeco(numcounties, numeffects, covlist, adata, states, cateffs, pars, rand); // log likelihood
 }
