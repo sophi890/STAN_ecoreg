@@ -6,7 +6,7 @@
 #SBATCH -e /n/home07/swoodward/STAN_ecoreg/test_log.pm25.err #specify where to save the output log
 #SBATCH --array=1 #number of jobs to run, it is currently set to 1 job(1 year), change it to array=1-13 for 13 years(jobs)
 #SBATCH --mem=80000 #memory requested
-#SBATCH -J aw.pm25  #job name, this case:aw-area weighted aggregation
+#SBATCH -J fit3.pm25  #job name
 #SBATCH --mail-type=END #notifications for job done
 #SBATCH --mail-user=swoodward@college.harvard.edu # send to address
 
