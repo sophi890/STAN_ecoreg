@@ -5,14 +5,11 @@ functions{
     vector[numeffects[3]] beta; // normal covariate effects
     vector[numcounties] N = adata[,2]; // population each county
     vector[numcounties] q; 
-    real c = 16*sqrt(3) / (15 * pi());  
+    real c2 = 0.34584297349917959319510856775587; //  c = 16*sqrt(3) / (15 * pi()); 
     vector[numcounties] denom = rep_vector(1.0, numcounties); 
     vector[numcounties] normvec = rep_vector(0.0, numcounties);
     vector[prod(numcats)] cateffs = rep_vector(0.0, prod(numcats));
-    matrix[numcounties,prod(numcats)] plogis_alleffs;
-    vector[prod(numcats)] ones = rep_vector(1.0, prod(numcats));
-    vector[numcounties] p;
-    vector[numcounties] loglik;
+    vector[numcounties] p = rep_vector(0.0, numcounties);
     
     // add group level covariate effect
     q = adata[,5:(numeffects[1]+4)] * alphac; // (3082 x 15)  x (15 x 1)
@@ -26,24 +23,18 @@ functions{
    if (numeffects[3]>0){
       beta = pars[(numeffects[1]+sum(numcats)-numeffects[2]+1):(numeffects[1]+sum(numcats)-numeffects[2]+numeffects[3])]; // individual-level normal covariate effects
       for (i in 1:numcounties){
-        denom[i] = sqrt(1+c*c*beta'*covlist[i]*beta);
+        denom[i] = sqrt(1+c2*beta'*covlist[i]*beta);
       }
     normvec = adata[,(numeffects[1]+5+prod(numcats)):(numeffects[1]+4+prod(numcats)+numeffects[3])] * beta; 
     }
-    for (i in 1:numcounties){
-      for (j in 1:prod(numcats)){
-        plogis_alleffs[i,j] = logistic_cdf((q[i] + cateffs[j] + normvec[i] + rand[states[i]])/denom[i],0,1);
-      }
-    }
-    
+
+  for (j in 1:prod(numcats)){ // progress along cols
+    p += adata[,(numeffects[1]+4+j)] ./ (1.0 + exp(-(cateffs[j] + q + normvec + rand[states]) ./ denom));
+  }
     // end up with vector of probabilities for binomial, one for each FIPS 
-    p = (adata[,(numeffects[1]+5):(numeffects[1]+4+prod(numcats))].* plogis_alleffs) * ones; //adata[,20:403]. (3082 x 384) x (384 x 1)
     
     // calculate loglikelihood
-    for (i in 1:num_elements(y)){
-      loglik[i] = y[i]*log(p[i]) + (N[i]-y[i])*log(1-p[i]);//binomial_lpmf(y[i] | N[i], p[i]); - not working b/c require ints not reals.
-    }
-    return sum(loglik);
+    return sum(y .* log(p) + (N-y) .* log(1-p));
   }
 }
 
@@ -66,7 +57,7 @@ parameters{
 
 model{
   rand ~ normal(0, sigma);
-  pars[1] ~ normal(-7,5); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US Feb
+  pars[1] ~ normal(-8,5); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US Feb
   pars[2:] ~ normal(0, sqrt(0.68)); // priors for remaining //corresponds to 95 percent odds ratio between 1/5 and 5
   y ~ loglikeco(numcounties, numeffects, numcats, covlist, adata, whicha, states, pars, rand); // log likelihood
 }
