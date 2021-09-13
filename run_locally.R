@@ -32,6 +32,7 @@ load('data/states.Rda')
 load('data/adata_random.Rda')
 load('data/whicha.Rda')
 load('data/covlist.Rdata')
+# save(adata, whicha, covlist, states, file = 'ecoreg_random.RData')
 
 ## This will not converge if you run locally (takes ages)
 fit2.random = stan(file = 'ecoreg_random.stan', data = list(y=adata[,1], numcounties = 3082, numeffects = c(15, 6, 2), numcats = c(2,2,2,8,2,3), covlist=covlist, adata=adata, whicha=whicha, states=states))
@@ -58,13 +59,13 @@ fit2.random = stan(file = 'ecoreg_random.stan', data = list(y=adata[,1], numcoun
 load('data/ecoreg_fixedoffsets.RData')
 
 ## Run MCMC
-fit3.random = stan(file = 'ecoreg_random_fixedoffset.stan', data = list(y=adata[,1], numcounties = 3082, numeffects = c(15, 2), covlist=covlist, adata=adata, states=states, cateffs = gamma_s))
+fit3.random = stan(file = 'ecoreg_random_fixedoffset.stan', data = list(y=adata[,1], numcounties = 3082, numstrata = 384, numeffects = c(15, 2), covlist=covlist, adata=adata, states=states, cateffs = gamma_s))
 
 
-# Model 3, condensing into 96 strata. Here age is collapsed from 8 categories into 2
+# Model 3, condensing into 96 strata. Here age is collapsed from 8 categories into 2. 
 
 ## Load data
 load('data/ecoreg_fixedoffsets_96strata.RData')
 
 ## Run MCMC
-fit3.random.age2 = stan(file = 'ecoreg_random_fixedoffset.stan', data = list(y = adata[,1], numcounties = 3082, numeffects = c(15, 2), covlist = covlist, adata = adata, states = states, cateffs = gamma_s))
+fit3.random.age2 = stan(file = 'ecoreg_random_fixedoffset.stan', data = list(y = adata[,1], numcounties = 3082, numstrata = 96, numeffects = c(15, 2), covlist = covlist, adata = adata, states = states, cateffs = gamma_s))
