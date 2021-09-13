@@ -7,13 +7,10 @@ functions{
     real c2 = 0.34584297349917959319510856775587; //  c = 16*sqrt(3) / (15 * pi()); 
     vector[numcounties] denom = rep_vector(1.0, numcounties); 
     vector[numcounties] normvec = rep_vector(0.0, numcounties); 
-    matrix[numcounties, num_elements(cateffs)] plogis_alleffs;
-    vector[num_elements(cateffs)] ones = rep_vector(1.0, num_elements(cateffs));
-    vector[numcounties] p;
-
+    vector[numcounties] p = rep_vector(0.0, numcounties);
+    
     // add group level covariate effect
     q = adata[,5:(numeffects[1]+4)] * alphac; // (3082 x 15)  x (15 x 1)
-
     
     // add "normal" covariate effects
    if (numeffects[2]>0){
@@ -25,14 +22,10 @@ functions{
     }
 
   for (j in 1:num_elements(cateffs)){ // progress along cols
-    for (i in 1:numcounties){ // progress along rows within each col
-      //plogis_alleffs[i,j] = 1 / (1 + exp(-1.0 * ((q[i] + cateffs[j] + normvec[i] + rand[states[i]]) ./ denom[i] )));
-      plogis_alleffs[i,j] = logistic_cdf((q[i] + cateffs[j] + normvec[i] + rand[states[i]])/denom[i],0,1); 
-    }
+    p += adata[,(numeffects[1]+4+j)] ./ (1.0 + exp(-(cateffs[j] + q + normvec + rand[states]) ./ denom));
   }
     // end up with vector of probabilities for binomial, one for each FIPS 
-    p = (adata[,(numeffects[1]+5):(numeffects[1]+4+num_elements(cateffs))].* plogis_alleffs) * ones; //adata[,20:403]. (3082 x 384) x (384 x 1)
-    
+  
     // calculate loglikelihood
     return sum(y .* log(p) + (N-y) .* log(1-p));
   }
@@ -50,13 +43,13 @@ data{ // how to make generalizable?
 
 parameters{
   vector[numeffects[1]+numeffects[2]] pars; // use bounds? eg <lower=-3,upper=3>
-  real<lower=0,upper=10> sigma;
+  real<lower=0,upper=10> sigma; // sd of random state effects
   vector[49] rand;
 }
 
 model{
   rand ~ normal(0, sigma);
-  pars[1] ~ normal(0,5); // prior for intercept - based off of 0.0015=e^(-6.5) is approx baseline COVID death rate in US Feb
+  pars[1] ~ normal(0,0.5); // prior for intercept. Using fixed offsets so this should now be centered at 0.
   pars[2:] ~ normal(0, sqrt(0.68)); // priors for remaining //corresponds to 95 percent odds ratio between 1/5 and 5
   y ~ loglikeco(numcounties, numeffects, covlist, adata, states, cateffs, pars, rand); // log likelihood
 }
