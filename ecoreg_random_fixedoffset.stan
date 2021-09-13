@@ -1,5 +1,5 @@
 functions{ 
-  real loglikeco_log(vector y, int numcounties, int[] numeffects, matrix[] covlist, matrix adata, int[] states, vector cateffs, vector pars, vector rand){ //real
+  real loglikeco_log(vector y, int numcounties, int numstrata, int[] numeffects, matrix[] covlist, matrix adata, int[] states, vector cateffs, vector pars, vector rand){ //real
     vector[numeffects[1]] alphac = pars[1:(numeffects[1])]; // area-level covariate effects
     vector[numeffects[2]] beta; // normal covariate effects
     vector[numcounties] N = adata[,2]; // population each county
@@ -18,10 +18,10 @@ functions{
       for (i in 1:numcounties){
         denom[i] = sqrt(1+c2*beta'*covlist[i]*beta); // incorporates covariance 
       }
-    normvec = adata[,(numeffects[1]+5+num_elements(cateffs)):(numeffects[1]+4+num_elements(cateffs)+numeffects[2])] * beta; 
+    normvec = adata[,(numeffects[1]+5+numstrata):(numeffects[1]+4+numstrata+numeffects[2])] * beta; 
     }
 
-  for (j in 1:num_elements(cateffs)){ // progress along cols
+  for (j in 1:numstrata){ // progress along cols
     p += adata[,(numeffects[1]+4+j)] ./ (1.0 + exp(-(cateffs[j] + q + normvec + rand[states]) ./ denom));
   }
     // end up with vector of probabilities for binomial, one for each FIPS 
@@ -33,11 +33,12 @@ functions{
 
 data{ // how to make generalizable?
   int numcounties;
+  int numstrata;
   vector[numcounties] y; // deaths
-  vector[384] cateffs;
+  vector[numstrata] cateffs;
   int numeffects[2];   // # group level, # categorical covariates, # normal covariates in that order
   matrix[numeffects[2],numeffects[2]] covlist[numcounties]; // covariance list for normal covariates
-  matrix[numcounties,numeffects[1]+numeffects[2]+num_elements(cateffs)+4] adata; // population + grouplevel covariates + normal covariates + percent ppl in each strata
+  matrix[numcounties,numeffects[1]+numeffects[2]+numstrata+4] adata; // population + grouplevel covariates + normal covariates + percent ppl in each strata
   int states[numcounties];
 } 
 
@@ -51,6 +52,6 @@ model{
   rand ~ normal(0, sigma);
   pars[1] ~ normal(0,0.5); // prior for intercept. Using fixed offsets so this should now be centered at 0.
   pars[2:] ~ normal(0, sqrt(0.68)); // priors for remaining //corresponds to 95 percent odds ratio between 1/5 and 5
-  y ~ loglikeco(numcounties, numeffects, covlist, adata, states, cateffs, pars, rand); // log likelihood
+  y ~ loglikeco(numcounties, numstrata, numeffects, covlist, adata, states, cateffs, pars, rand); // log likelihood
 }
 
