@@ -37,6 +37,10 @@ load('data/covlist.Rdata')
 ## This will not converge if you run locally (takes ages)
 fit2.random = stan(file = 'ecoreg_random.stan', data = list(y=adata[,1], numcounties = 3082, numeffects = c(15, 6, 2), numcats = c(2,2,2,8,2,3), covlist=covlist, adata=adata, whicha=whicha, states=states))
 
+load('data/whicha96.Rda')
+fit2.random96strata = stan(file = 'ecoreg_random.stan', data = list(y=adata[,1], numcounties = 3082, numeffects = c(15, 6, 2), numcats = c(2,2,2,2,2,3), covlist=covlist, adata=adata, whicha=whicha96, states=states))
+
+fit2.random192strata = stan(file = 'ecoreg_random.stan', data = list(y=adata[,1], numcounties = 3082, numeffects = c(15, 6, 2), numcats = c(2,2,2,4,2,3), covlist=covlist, adata=adata, whicha=whicha192, states=states))
 
 # Model 3: Fixed offsets model
 
@@ -45,21 +49,22 @@ fit2.random = stan(file = 'ecoreg_random.stan', data = list(y=adata[,1], numcoun
 #strata <- adata[,grep("stratum", colnames(adata))] # extract strata from dataset
 #e <- rep(0, ncol(strata))
 #for (i in 1:ncol(strata)) { # loop over strata
-  #dat <- as.data.frame(adata[,"N"] * strata[,i]) # generate num people w/in strata
-  #mod <- glm(adata[,"y"] ~ ., family = poisson(), data = dat) # regress on number of deaths
-  #e[i] <- exp(coef(mod)[2]) - 1 # exponentiate coefficient and subtract 1 to get estimated risk parameter
+ # dat <- as.data.frame(adata[,"N"] * strata[,i]) # generate num people w/in strata
+#  mod <- glm(adata[,"y"] ~ ., family = poisson(), data = dat) # regress on number of deaths
+ # e[i] <- exp(coef(mod)[2]) - 1 # exponentiate coefficient and subtract 1 to get estimated risk parameter
 #}
 #summary(e) # median risk = 0.000526 (0.05% chance of death), max = 0.0246 (2.5% chance of death!), 24 NAs (no one in strata)
 # use log(e/(1-e)) as gamma_s for each strata
 #gamma_s = log(e/(1-e)) # mean -7.133298
 #gamma_s[is.na(gamma_s)] <- 0
-# save(adata, covlist, whicha, states, gamma_s, file = 'ecoreg_fixedoffsets.RData')
+#save(adata, covlist, whicha, states, gamma_s, file = 'ecoreg_fixedoffsets_192strata.RData')
 
 ## Load Data
 load('data/ecoreg_fixedoffsets.RData')
 
 ## Run MCMC
 fit3.random = stan(file = 'ecoreg_random_fixedoffset.stan', data = list(y=adata[,1], numcounties = 3082, numstrata = 384, numeffects = c(15, 2), covlist=covlist, adata=adata, states=states, cateffs = gamma_s))
+fit3.random.192strata = stan(file = 'ecoreg_random_fixedoffset.stan', data = list(y=adata[,1], numcounties = 3082, numstrata = 192, numeffects = c(15, 2), covlist=covlist, adata=adata, states=states, cateffs = gamma_s))
 
 
 # Model 3, condensing into 96 strata. Here age is collapsed from 8 categories into 2. 

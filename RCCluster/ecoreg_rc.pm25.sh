@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH -n 24 #number of cores
-#SBATCH -t 3-23:00
+#SBATCH -n 48 #number of cores
+#SBATCH -t 6-23:59
 #SBATCH -o /n/home07/swoodward/STAN_ecoreg/test_error.pm25.out #specify where to save errors returned by the program
 #SBATCH -e /n/home07/swoodward/STAN_ecoreg/test_log.pm25.err #specify where to save the output log
 #SBATCH --array=1 #number of jobs to run, it is currently set to 1 job(1 year), change it to array=1-13 for 13 years(jobs)

@@ -11,7 +11,8 @@ fit3 = stan(file = '../ecoreg_random.stan',
                         numcats = c(2,2,2,8,2,3), 
                         covlist = covlist.pm25, 
                         adata = adata, 
-                        whicha = whicha),
-            iter = 1000)
+                        whicha = whicha,
+                        states = states),
+            iter = 2000)
 
-save(fit3,file=paste0("../fit3_pm25.Rdata"))
+save(fit3,file=paste0("../fit3.Rdata"))
