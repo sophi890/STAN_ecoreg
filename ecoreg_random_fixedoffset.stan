@@ -44,7 +44,7 @@ data{ // how to make generalizable?
 
 parameters{
   vector[numeffects[1]+numeffects[2]] pars; // use bounds? eg <lower=-3,upper=3>
-  real<lower=0,upper=10> sigma; // sd of random state effects
+  real<lower=0,upper=1> sigma; // sd of random state effects
   vector[49] rand;
 }
 

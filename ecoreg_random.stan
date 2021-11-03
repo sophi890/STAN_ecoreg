@@ -51,7 +51,7 @@ data{ // how to make generalizable?
 
 parameters{
   vector[numeffects[1]+sum(numcats)-numeffects[2]+numeffects[3]] pars; // use bounds? eg <lower=-3,upper=3>
-  real<lower=0,upper=10> sigma;
+  real<lower=0,upper=1> sigma;
   vector[49] rand;
 }
 
